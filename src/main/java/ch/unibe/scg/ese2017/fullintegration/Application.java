@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Ese2017FullIntegrationApplication {
+public class Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Ese2017FullIntegrationApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 }
