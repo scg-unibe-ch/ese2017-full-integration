@@ -1,6 +1,11 @@
 language: java
 jdk:
   - oraclejdk8
+services:
+  - postgresql
+before_script:
+  - psql -c 'create user "ese2017-full-integration" password \'ese2017-full-integration\';' -U postgres
+  - createdb --user ese2017-full-integration ese2017-full-integration
 deploy:
   provider: heroku
   api-key:
