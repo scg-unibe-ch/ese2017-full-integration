@@ -4,12 +4,14 @@ import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(path = "/user")
@@ -25,40 +28,44 @@ public class UserController {
 	@Autowired
 	private UserDetailsManager userDetailsManager;
 
-	@RequestMapping("/greeting")
-	public String greeting(@RequestParam(value = "name", required = false, defaultValue = "World") String name,
-			Model model) {
-		model.addAttribute("name", name);
-		return "greeting";
+	@PreAuthorize("@userSecurityService.canCreate()")
+	@GetMapping(path = "/create")
+	public ModelAndView createForm() {
+		return new ModelAndView("user/form", "user", new User("user", "", Collections.emptyList()));
 	}
 
 	@PreAuthorize("@userSecurityService.canCreate()")
-	@PostMapping(path = "/")
-	public UserDetails create(@RequestParam String name, @RequestParam String password) {
-		User user = new User(name, password, Collections.emptyList());
+	@PostMapping(path = "")
+	public ModelAndView create(@RequestParam String username, @RequestParam String password) {
+		User user = new User(username, password, Collections.singletonList(new SimpleGrantedAuthority("user")));
 		userDetailsManager.createUser(user);
-		return user;
+		Authentication auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+		SecurityContextHolder.getContext().setAuthentication(auth);
+		return new ModelAndView("redirect:/user/{username}", "username", user.getUsername());
 	}
 
-	@PreAuthorize("@userSecurityService.canRead(#name)")
-	@GetMapping(path = "/{name}")
-	public UserDetails read(@PathVariable(value = "name") String name) {
-		return userDetailsManager.loadUserByUsername(name);
+	@PreAuthorize("@userSecurityService.canRead(#username)")
+	@GetMapping(path = "/{username}")
+	public ModelAndView read(@PathVariable(value = "username") String username) {
+		UserDetails user = userDetailsManager.loadUserByUsername(username);
+		return new ModelAndView("user/read", "user", user);
 	}
 
-	@PreAuthorize("@userSecurityService.canUpdate(#name)")
-	@PutMapping(path = "/{name}")
-	public UserDetails update(@PathVariable(value = "name") String name, @RequestParam String password) {
+	@PreAuthorize("@userSecurityService.canUpdate(#username)")
+	@PutMapping(path = "/{username}")
+	public ModelAndView update(@PathVariable(value = "username") String username, @RequestParam String password) {
 		String oldPassword = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
 				.getPassword();
 		userDetailsManager.changePassword(oldPassword, password);
-		return userDetailsManager.loadUserByUsername(name);
+		UserDetails user = userDetailsManager.loadUserByUsername(username);
+		return new ModelAndView("redirect:/user/{username}", "username", user.getUsername());
 	}
 
-	@PreAuthorize("@userSecurityService.canDelete(#name)")
-	@DeleteMapping(path = "/{name}")
-	public void delete(@PathVariable(value = "name") String name) {
-		userDetailsManager.deleteUser(name);
+	@PreAuthorize("@userSecurityService.canDelete(#username)")
+	@DeleteMapping(path = "/{username}")
+	public ModelAndView delete(@PathVariable(value = "username") String username) {
+		userDetailsManager.deleteUser(username);
+		return new ModelAndView("redirect:/");
 	}
 
 }
