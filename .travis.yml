@@ -1,21 +1,22 @@
 dist: trusty
 language: java
 jdk:
-  - oraclejdk8
+- oraclejdk8
 services:
-  - postgresql
+- postgresql
 addons:
-  postgresql: "9.6"
+  postgresql: '9.6'
 cache:
   directories:
-    - $HOME/.m2
+  - $HOME/.m2
 before_script:
-  - psql -c 'create user "ese2017-full-integration" password '"'"'ese2017-full-integration'"'"' createdb;' -U postgres
-  - psql -c 'create database "ese2017-full-integration"' -U ese2017-full-integration postgres
+- psql -c 'create user "ese2017-full-integration" password '"'"'ese2017-full-integration'"'"' createdb;' -U postgres
+- psql -c 'create database "ese2017-full-integration"' -U ese2017-full-integration postgres
 deploy:
   provider: heroku
   api-key:
     secure: $HEROKU_API_KEY
   app: ese2017-full-integration
 notifications:
-  slack: $SLACK_API_KEY
+  slack:
+    secure: AzQ19CrX7sF+YtlD0hiRVxvb3b2l1zXnptk7L6QJV+eK/+0/wmzamGhSIkNu7+WrXQzKlE2yA/VpJ/WUwaHJDKwm9SnOv86EB6mR1Emo6qgv3sZU43vUeDrPZ5lz8Byc5RnKc/VAg448WZNs6i4hqBFQ7a8FX0ETpHtx/Bqg8037D523cpS5SqE95hq1ZqM5H8mlU0RKCi/y4c6ei4x++Jsix8O5HlyskPP56CVxprllDt16FOBX5qrzbDZH9motqvX1FldRQuPxejhZydxtAgTfgKRoxdmKG+8M1LrW5+A0LLifXz5Yb3rpfcF+3e25r8N51RJ8PT0tOhILzAG+IkKhUzCpdhemAdI973hMLfEKwKpPwmtXfT5GjZ6ZTF8OJaE01FSPrkp3xdl5lyXUhuFVxANbLRA3EAVIPc55nuKVYq1pbFreCXdybzRhgs8DHyvBzn/mT+pjzGQZ79Wr7GuQ6qByoy3//dZotcX+M7Z1dd0BTdJKBXN1WtW9ZuRP9JpKcgqZP9AGuMFeziD8ZWzBTjc43B58+OACu6UodlQc5qq78aSok7cSAVYdV/Mgh1crrMUk738Ah5FOF9JN1xq7W70iBnt7KQEp2Jrh0F0fPS8VLNdwLzFLoXczGdkojTgbWdqGD+UhN9TQcjbUVk3T/xaKJBpcrSgNstyyDIE=
