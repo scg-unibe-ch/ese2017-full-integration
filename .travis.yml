@@ -3,6 +3,8 @@ jdk:
   - oraclejdk8
 services:
   - postgresql
+addons:
+  postgresql: "9.4"
 cache:
   directories:
     - $HOME/.m2
