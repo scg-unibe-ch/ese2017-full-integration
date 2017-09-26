@@ -4,8 +4,8 @@ jdk:
 services:
   - postgresql
 before_script:
-  - psql -c 'create user "ese2017-full-integration" password '"'"'ese2017-full-integration'"'"';' -U postgres
-  - createdb --user ese2017-full-integration ese2017-full-integration
+  - psql -c 'create user "ese2017-full-integration" password '"'"'ese2017-full-integration'"'"' createdb;' -U postgres
+  - psql -c 'create database "ese2017-full-integration"' -U ese2017-full-integration
 deploy:
   provider: heroku
   api-key:
